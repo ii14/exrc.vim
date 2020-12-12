@@ -1,0 +1,65 @@
+*exrc.txt*					A secure exrc reimplementation
+
+==============================================================================
+INTRODUCTION					*exrc-introduction*
+
+*exrc.vim* is a secure reimplementation of 'exrc' feature.
+
+Enables the reading of local config files in the current working directory.
+
+The advantage over the native 'exrc' feature is that each file has to be
+manually marked as trusted, before it can be sourced. *exrc.vim* keeps track
+of file hashes and every time the content or location of a config file
+changes, it has to be marked as trusted again.
+
+------------------------------------------------------------------------------
+COMMAND						*exrc-command*
+
+:ExrcTrust {file}				*:ExrcTrust*
+	Add {file} to trusted files.
+	If {file} is not specified, the current buffer is selected.
+
+	To automatically mark saved files as trusted, use this autocmd:
+>
+		autocmd BufWritePost .exrc ExrcTrust
+<
+:ExrcEdit					*:ExrcEdit*
+	Edit local config file.
+
+:ExrcSource					*:ExrcSource*
+	Source local config file.
+
+------------------------------------------------------------------------------
+OPTIONS						*exrc-options*
+
+g:exrc#names					*g:exrc#names*
+	List of accepted filenames.
+
+	If the list includes filenames that are used by the native 'exrc'
+	option (".vimrc", ".exrc" or ".gvimrc"), the 'exrc' option has to be
+	turned off.
+>
+		set noexrc
+<
+	Default: [".exrc.local", ".vimrc.local"]
+
+g:exrc#hash_func				*g:exrc#hash_func*
+	Hashing function.
+
+	The default function uses builtin |sha256()| function. If vim is
+	compiled without |+cryptv| option, a custom function can be provided.
+	Function should take a filename as an argument and return a |String|.
+	Returned value is stripped from whitespace and only first word is
+	used as a hash.
+>
+		fun! HashFile(fname)
+			return system('sha512sum '.shellescape(a:fname))
+		endfun
+		let g:exrc#hash_func = 'HashFile'
+<
+g:exrc#cache_file				*g:exrc#cache_file*
+	Path to the cache file with trusted hashes.
+
+	Default: "$HOME/.exrc_cache" or "|stdpath('cache')|/.exrc_cache"
+
+vim:tw=78:sw=8:sts=8:ts=8:noet:ft=help:norl:
