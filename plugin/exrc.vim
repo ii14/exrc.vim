@@ -19,11 +19,11 @@ fun! s:HashFunc(fname)
 endfun
 
 if type(s:names) != v:t_list
-  throw 'g:exrc_names is not a list'
+  throw 'g:exrc#names is not a list'
 endif
 
 if len(s:names) < 1
-  throw 'g:exrc_names should have at least one element'
+  throw 'g:exrc#names should have at least one element'
 endif
 
 fun! s:contains(list, patterns)
@@ -37,13 +37,13 @@ endfun
 
 if s:contains(s:names, ['.vimrc', '.exrc', '.gvimrc']) && &exrc
   throw "Collision with native 'exrc' option. " .
-    \ "Set 'noexrc' or set a custom filename in g:exrc_names"
+    \ "Set 'noexrc' or set a custom filename in g:exrc#names"
 endif
 
 try
   call function(s:hash_func)
 catch /E700/
-  throw 'g:exrc_hash_func = "' . s:hash_func . '" is not a function'
+  throw 'g:exrc#hash_func = "' . s:hash_func . '" is not a function'
 endtry
 
 " Functions
@@ -113,7 +113,7 @@ fun! s:Trust(fname) abort
   let tail = fnamemodify(a:fname, ':t')
   if index(s:names, tail) == -1
     echo 'Exrc: Invalid filename "' . tail . '". ' .
-      \ 'Run :ExrcEdit to edit the config or add the filename to g:exrc_names'
+      \ 'Run :ExrcEdit to edit the config or add the filename to g:exrc#names'
     return
   endif
 
