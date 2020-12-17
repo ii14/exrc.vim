@@ -25,7 +25,7 @@ The file has to be marked as trusted each time its contents or path changes.
 Mark file as trusted on save:
 
 ```vim
-autocmd BufWritePost .exrc.local ExrcTrust
+autocmd BufWritePost .exrc.local nested ExrcTrust
 ```
 
 Change filename of local config files:

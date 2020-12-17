@@ -21,7 +21,7 @@ COMMAND						*exrc-command*
 
 	To automatically mark saved files as trusted, use this autocmd:
 >
-		autocmd BufWritePost .exrc ExrcTrust
+		autocmd BufWritePost .exrc nested ExrcTrust
 <
 :ExrcEdit					*:ExrcEdit*
 	Edit local config file.
