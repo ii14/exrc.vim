@@ -41,7 +41,9 @@ g:exrc#names					*g:exrc#names*
 >
 		set noexrc
 <
-	Default: [".exrc.local", ".vimrc.local"]
+	Supports lua files.
+
+	Default: [".exrc", ".exrc.local", ".vimrc.local"]
 
 g:exrc#hash_func				*g:exrc#hash_func*
 	Hashing function.

@@ -1,6 +1,6 @@
 " exrc.vim - Secure exrc reimplementation
 " Maintainer:   ii14
-" Version:      0.1.0
+" Version:      0.2.0
 
 " Config
 
@@ -9,7 +9,7 @@ if exists('g:loaded_exrc')
 endif
 let g:loaded_exrc = 1
 
-let s:names       = get(g:, 'exrc#names', ['.exrc.local', '.vimrc.local'])
+let s:names       = get(g:, 'exrc#names', ['.exrc', '.exrc.local', '.vimrc.local'])
 let s:hash_func   = get(g:, 'exrc#hash_func', 's:HashFunc')
 let s:cache_file  = get(g:, 'exrc#cache_file',
                   \ (exists('*stdpath') ? stdpath('cache') : $HOME) . '/.exrc_cache')
@@ -17,14 +17,6 @@ let s:cache_file  = get(g:, 'exrc#cache_file',
 fun! s:HashFunc(fname)
   return sha256(join(readfile(a:fname, 'b'), "\n"))
 endfun
-
-if type(s:names) != v:t_list
-  throw 'g:exrc#names is not a list'
-endif
-
-if len(s:names) < 1
-  throw 'g:exrc#names should have at least one element'
-endif
 
 fun! s:contains(list, patterns)
   for pat in a:patterns
@@ -34,6 +26,14 @@ fun! s:contains(list, patterns)
   endfor
   return v:false
 endfun
+
+if type(s:names) == v:t_string
+  let s:names = [s:names]
+elseif type(s:names) != v:t_list
+  throw 'g:exrc#names is not a list'
+elseif len(s:names) < 1
+  throw 'g:exrc#names should have at least one element'
+endif
 
 if s:contains(s:names, ['.vimrc', '.exrc', '.gvimrc']) && &exrc
   throw "Collision with native 'exrc' option. " .
@@ -137,7 +137,7 @@ fun! s:Source()
   for name in s:names
     if filereadable(name)
       if s:Check(name)
-        execute 'source ' . fnameescape(name)
+        execute (match(name, '.lua$') == -1 ? 'source ' : 'luafile ').fnameescape(name)
         return
       endif
       let found = v:true
