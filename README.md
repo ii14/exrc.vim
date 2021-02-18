@@ -11,7 +11,7 @@ this issue by keeping track of file hashes and allowing only trusted files to be
 
 ## Usage
 
-To mark file as trusted, open the config file with `:edit .exrc.local` or `:ExrcEdit` and
+To mark file as trusted, open the config file with `:edit .exrc` or `:ExrcEdit` and
 run command:
 
 ```vim
@@ -25,13 +25,16 @@ The file has to be marked as trusted each time its contents or path changes.
 Mark file as trusted on save:
 
 ```vim
-autocmd BufWritePost .exrc.local nested ExrcTrust
+autocmd BufWritePost .exrc nested ExrcTrust
 ```
 
 Change filename of local config files:
 
 ```vim
 let g:exrc#names = ['.exrc.local']
+
+" add syntax highlighting:
+autocmd BufRead,BufNewFile .exrc.local setfiletype vim
 ```
 
 Cache file location:
@@ -48,10 +51,4 @@ fun! HashFile(fname)
 endfun
 
 let g:exrc#hash_func = 'HashFile'
-```
-
-Add syntax highlighting to your local config files:
-
-```vim
-autocmd BufRead,BufNewFile .exrc.local setfiletype vim
 ```
