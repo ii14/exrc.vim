@@ -156,7 +156,54 @@ fun! s:Source()
   endif
 endfun
 
+fun! s:Command(...)
+  if a:1 =~ '\v^e%[dit]$'
+    if len(a:000) > 1
+      echohl ErrorMsg
+      echomsg 'More arguments for edit than expected'
+      echohl None
+      return
+    endif
+    call s:Edit()
+  elseif a:1 =~ '\v^s%[ource]$'
+    if len(a:000) > 1
+      echohl ErrorMsg
+      echomsg 'More arguments for source than expected'
+      echohl None
+      return
+    endif
+    call s:Source()
+  elseif a:1 =~ '\v^t%[rust]$'
+    if len(a:000) > 2
+      echohl ErrorMsg
+      echomsg 'More arguments for trust than expected'
+      echohl None
+      return
+    endif
+    call s:Trust(get(a:000, 1, expand('%')))
+  else
+    echohl ErrorMsg
+    echomsg 'Invalid mode'
+    echohl None
+  endif
+endfun
+
+fun! s:Completion(ArgLead, CmdLine, CursorPos)
+  let cmdline = split(a:CmdLine[:a:CursorPos])
+  let cmdline = cmdline[index(cmdline, 'Exrc'):]
+  if len(cmdline) < 2 || (len(cmdline) < 3 && a:CmdLine[a:CursorPos-1] !~ '\s')
+    return filter(['edit', 'source', 'trust'], 'v:val =~ ''\V\^''.a:ArgLead')
+  endif
+  if cmdline[1] =~ '\v^t%[rust]$'
+    return map(getcompletion(a:ArgLead, 'file'), 'fnameescape(v:val)')
+  endif
+  return []
+endfun
+
 " Commands
+
+command! -nargs=+ -complete=customlist,s:Completion Exrc
+  \ call s:Command(<f-args>)
 
 command! -nargs=? -complete=file ExrcTrust
   \ call s:Trust(expand(<q-args> ==# '' ? '%' : <q-args>))
