@@ -164,7 +164,7 @@ endfun
 " Commands
 
 command! -nargs=? -complete=file ExrcTrust
-  \ call s:Trust(<q-args> ==# '' ? expand('%') : <q-args>)
+  \ call s:Trust(expand(<q-args> ==# '' ? '%' : <q-args>))
 
 command! ExrcEdit call s:Edit()
 
