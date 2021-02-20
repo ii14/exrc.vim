@@ -35,6 +35,12 @@ elseif len(s:names) < 1
   throw 'g:exrc#names should have at least one element'
 endif
 
+for name in s:names
+  if type(name) != v:t_string
+    throw 'g:exrc#names should only contain strings'
+  endif
+endfor
+
 if s:contains(s:names, ['.vimrc', '.exrc', '.gvimrc']) && &exrc
   throw "Collision with native 'exrc' option. " .
     \ "Set 'noexrc' or set a custom filename in g:exrc#names"
@@ -105,15 +111,19 @@ endfun
 " Add file to trusted files
 fun! s:Trust(fname) abort
   if !filereadable(a:fname)
-    echo 'Exrc: File does not exist'
+    echohl ErrorMsg
+    echomsg 'Exrc: File does not exist'
+    echohl None
     return
   endif
 
   " validate filename
   let tail = fnamemodify(a:fname, ':t')
   if index(s:names, tail) == -1
-    echo 'Exrc: Invalid filename "' . tail . '". ' .
+    echohl ErrorMsg
+    echomsg 'Exrc: Invalid filename "' . tail . '". ' .
       \ 'Run :ExrcEdit to edit the config or add the filename to g:exrc#names'
+    echohl None
     return
   endif
 
@@ -144,8 +154,10 @@ fun! s:Source()
     endif
   endfor
   if found
+    echohl WarningMsg
     echomsg 'Exrc: Unknown config found. ' .
       \ 'Run :ExrcEdit and :ExrcTrust to add config to the trusted files'
+    echohl None
   endif
 endfun
 
