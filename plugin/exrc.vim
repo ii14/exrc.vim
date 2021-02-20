@@ -18,15 +18,6 @@ fun! s:HashFunc(fname)
   return sha256(join(readfile(a:fname, 'b'), "\n"))
 endfun
 
-fun! s:contains(list, patterns)
-  for pat in a:patterns
-    if index(a:list, pat) != -1
-      return v:true
-    endif
-  endfor
-  return v:false
-endfun
-
 if type(s:names) == v:t_string
   let s:names = [s:names]
 elseif type(s:names) != v:t_list
@@ -41,15 +32,19 @@ for name in s:names
   endif
 endfor
 
-if s:contains(s:names, ['.vimrc', '.exrc', '.gvimrc']) && &exrc
-  throw "Collision with native 'exrc' option. " .
-    \ "Set 'noexrc' or set a custom filename in g:exrc#names"
+if &exrc
+  for pat in ['.vimrc', '.exrc', '.gvimrc']
+    if index(s:names, pat) != -1
+      throw "Collision with native 'exrc' option. " .
+        \ "Set 'noexrc' or set a custom filename in g:exrc#names"
+    endif
+  endfor
 endif
 
 try
   call function(s:hash_func)
 catch /E700/
-  throw 'g:exrc#hash_func = "' . s:hash_func . '" is not a function'
+  throw 'g:exrc#hash_func is not a function'
 endtry
 
 " Functions
@@ -147,7 +142,7 @@ fun! s:Source()
   for name in s:names
     if filereadable(name)
       if s:Check(name)
-        execute (match(name, '.lua$') == -1 ? 'source ' : 'luafile ').fnameescape(name)
+        execute (match(name, '\c\V.lua\$') == -1 ? 'source ' : 'luafile ').fnameescape(name)
         return
       endif
       let found = v:true
