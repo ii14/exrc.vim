@@ -13,20 +13,20 @@ of file hashes and every time the content or location of a config file
 changes, it has to be marked as trusted again.
 
 ------------------------------------------------------------------------------
-COMMAND						*exrc-command*
+COMMAND						*exrc-command* *:Exrc*
 
-:ExrcTrust {file}				*:ExrcTrust*
+:Exrc trust {file}				*exrc-trust*
 	Add {file} to trusted files.
 	If {file} is not specified, the current buffer is selected.
 
 	To automatically mark saved files as trusted, use this autocmd:
 >
-		autocmd BufWritePost .exrc nested ExrcTrust
+		autocmd BufWritePost .exrc nested Exrc trust
 <
-:ExrcEdit					*:ExrcEdit*
+:Exrc edit					*exrc-edit*
 	Edit local config file.
 
-:ExrcSource					*:ExrcSource*
+:Exrc source					*exrc-source*
 	Source local config file.
 
 ------------------------------------------------------------------------------
