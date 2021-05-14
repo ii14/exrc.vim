@@ -1,6 +1,6 @@
 " exrc.vim - Secure exrc reimplementation
 " Maintainer:   ii14
-" Version:      0.2.0
+" Version:      0.3.0
 
 " Config
 
@@ -117,7 +117,7 @@ fun! s:Trust(fname) abort
   if index(s:names, tail) == -1
     echohl ErrorMsg
     echomsg 'Exrc: Invalid filename "' . tail . '". ' .
-      \ 'Run :ExrcEdit to edit the config or add the filename to g:exrc#names'
+      \ 'Run ":Exrc edit" to edit the config or add the filename to g:exrc#names'
     echohl None
     return
   endif
@@ -151,7 +151,7 @@ fun! s:Source()
   if found
     echohl WarningMsg
     echomsg 'Exrc: Unknown config found. ' .
-      \ 'Run :ExrcEdit and :ExrcTrust to add config to the trusted files'
+      \ 'Run ":Exrc edit" and ":Exrc trust" to add config to the trusted files'
     echohl None
   endif
 endfun
@@ -194,7 +194,8 @@ fun! s:Completion(ArgLead, CmdLine, CursorPos)
   if len(cmdline) < 2 || (len(cmdline) < 3 && a:CmdLine[a:CursorPos-1] !~ '\s')
     return filter(['edit', 'source', 'trust'], 'v:val =~ ''\V\^''.a:ArgLead')
   endif
-  if cmdline[1] =~ '\v^t%[rust]$'
+  if cmdline[1] =~ '\v^t%[rust]$' &&
+    \ (len(cmdline) < 3 || (len(cmdline) < 4 && a:CmdLine[a:CursorPos-1] !~ '\s'))
     return map(getcompletion(a:ArgLead, 'file'), 'fnameescape(v:val)')
   endif
   return []
@@ -202,15 +203,7 @@ endfun
 
 " Commands
 
-command! -nargs=+ -complete=customlist,s:Completion Exrc
-  \ call s:Command(<f-args>)
-
-command! -nargs=? -complete=file ExrcTrust
-  \ call s:Trust(expand(<q-args> ==# '' ? '%' : <q-args>))
-
-command! ExrcEdit call s:Edit()
-
-command! ExrcSource call s:Source()
+command! -nargs=+ -complete=customlist,s:Completion Exrc call s:Command(<f-args>)
 
 " Autocommands
 

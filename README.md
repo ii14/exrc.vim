@@ -11,11 +11,11 @@ this issue by keeping track of file hashes and allowing only trusted files to be
 
 ## Usage
 
-To mark file as trusted, open the config file with `:edit .exrc` or `:ExrcEdit` and
+To mark file as trusted, open the config file with `:edit .exrc` or `:Exrc edit` and
 run command:
 
 ```vim
-:ExrcTrust
+:Exrc trust
 ```
 
 The file has to be marked as trusted each time its contents or path changes.
@@ -25,7 +25,7 @@ The file has to be marked as trusted each time its contents or path changes.
 Mark file as trusted on save:
 
 ```vim
-autocmd BufWritePost .exrc nested ExrcTrust
+autocmd BufWritePost .exrc nested Exrc trust
 ```
 
 Change filename of local config files:
