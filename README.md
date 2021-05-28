@@ -23,13 +23,11 @@ The file has to be marked as trusted each time its contents or path changes.
 ## Configuration
 
 Mark file as trusted on save:
-
 ```vim
 autocmd BufWritePost .exrc nested ExrcTrust
 ```
 
 Change filename of local config files:
-
 ```vim
 let g:exrc#names = ['.exrc.local']
 
@@ -37,14 +35,17 @@ let g:exrc#names = ['.exrc.local']
 autocmd BufRead,BufNewFile .exrc.local setfiletype vim
 ```
 
-Cache file location:
+Lua support:
+```vim
+let g:exrc#names = ['.exrc.lua']
+```
 
+Cache file location:
 ```vim
 let g:exrc#cache_file = $XDG_CACHE_HOME.'/exrc_cache'
 ```
 
 Custom hashing function:
-
 ```vim
 fun! HashFile(fname)
   return system('sha512sum '.shellescape(a:fname))
