@@ -52,3 +52,11 @@ endfun
 
 let g:exrc#hash_func = 'HashFile'
 ```
+
+## Looking up config files recursively
+
+This plugin just reimplements the `exrc` option in a secure manner, it does not look up
+files recursively (at least for now), meaning that it will only detect config files in the
+current working directory. If you want this behavior, check out
+[jenterkin/vim-autosource](https://github.com/jenterkin/vim-autosource) plugin. It's the
+same concept, but searches for config files recursively.

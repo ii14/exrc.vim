@@ -8,7 +8,7 @@ INTRODUCTION					*exrc-introduction*
 Enables the reading of local config files in the current working directory.
 
 The advantage over the native 'exrc' feature is that each file has to be
-manually marked as trusted, before it can be sourced. *exrc.vim* keeps track
+manually marked as trusted, before it can be sourced. exrc.vim keeps track
 of file hashes and every time the content or location of a config file
 changes, it has to be marked as trusted again.
 
