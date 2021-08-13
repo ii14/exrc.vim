@@ -158,12 +158,12 @@ endfun
 
 " Commands
 
-command! -nargs=? -complete=file ExrcTrust
+command! -bar -nargs=? -complete=file ExrcTrust
   \ call s:Trust(expand(<q-args> ==# '' ? '%' : <q-args>))
 
-command! ExrcEdit call s:Edit()
+command! -bar ExrcEdit call s:Edit()
 
-command! ExrcSource call s:Source()
+command! -bar ExrcSource call s:Source()
 
 " Autocommands
 
