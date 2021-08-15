@@ -1,3 +1,7 @@
+" exrc.vim - Secure exrc reimplementation
+" License: UNLICENSE <https://www.unlicense.org>
+" Website: https://github.com/ii14/exrc.vim
+
 let g:exrc#names = ['.exrc', '.exrc.lua']
 let g:exrc#cache_file = g:CACHE_FILE
 source $EXRC_RUNTIME/autoload/exrc.vim

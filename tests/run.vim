@@ -1,3 +1,7 @@
+" exrc.vim - Secure exrc reimplementation
+" License: UNLICENSE <https://www.unlicense.org>
+" Website: https://github.com/ii14/exrc.vim
+
 if !exists('$EXRC_RUNTIME')
   let $EXRC_RUNTIME = expand('<sfile>:p:h:h')
 endif
@@ -54,8 +58,6 @@ redir! > $EXRC_LOG_FILE
     echomsg strftime('%Y-%m-%d %H:%M:%S')
     echomsg '$EXRC_RUNTIME  = '.string($EXRC_RUNTIME)
     echomsg '$EXRC_LOG_FILE = '.string($EXRC_LOG_FILE)
-    echomsg 'g:RC_FILE      = '.string(g:RC_FILE)
-    echomsg 'g:CACHE_FILE   = '.string(g:CACHE_FILE)
     version
     echomsg repeat('-', 80)
   endif
