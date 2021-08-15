@@ -9,13 +9,19 @@ if !exists('$EXRC_LOG_FILE')
   let $EXRC_LOG_FILE = 'test.log'
 endif
 
-let g:RC_FILE     = getcwd().'/.exrc'
-let g:RC_LUA_FILE = getcwd().'/.exrc.lua'
-let g:CACHE_FILE  = getcwd().'/exrc_cache'
-
-let s:tmp_files = [g:RC_FILE, g:RC_LUA_FILE, g:CACHE_FILE]
 let s:ok = v:true
+let g:TMP = {
+  \ 'rc_file'     : getcwd().'/.exrc',
+  \ 'rc_lua_file' : getcwd().'/.exrc.lua',
+  \ 'cache_file'  : getcwd().'/exrc_cache',
+  \ }
 
+
+fun! Cleanup()
+  for file in values(g:TMP)
+    call delete(file)
+  endfor
+endfun
 
 fun! Abort(...) abort
   if a:0
@@ -56,15 +62,16 @@ endfun
 redir! > $EXRC_LOG_FILE
   if exists('$EXRC_CI')
     echomsg strftime('%Y-%m-%d %H:%M:%S')
-    echomsg '$EXRC_RUNTIME  = '.string($EXRC_RUNTIME)
-    echomsg '$EXRC_LOG_FILE = '.string($EXRC_LOG_FILE)
+    echomsg '* $EXRC_RUNTIME = '.string($EXRC_RUNTIME)
+    echomsg '* $EXRC_LOG_FILE = '.string($EXRC_LOG_FILE)
+    for key in sort(keys(g:TMP))
+      echomsg '* g:TMP.'.key.' = '.string(g:TMP[key])
+    endfor
     version
     echomsg repeat('-', 80)
   endif
 
-  for file in s:tmp_files
-    call delete(file)
-  endfor
+  call Cleanup()
 
   try
     source $EXRC_RUNTIME/tests/test.vim
@@ -86,9 +93,7 @@ redir! > $EXRC_LOG_FILE
     echohl None
   endif
 
-  for file in s:tmp_files
-    call delete(file)
-  endfor
+  call Cleanup()
 redir END
 
 if exists('$EXRC_CI')
