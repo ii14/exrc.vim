@@ -9,17 +9,27 @@ on:
       - 'master'
 
 jobs:
-  test:
+
+  vim:
+    env:
+      - EXRC_VIM: 'vim'
     runs-on: 'ubuntu-latest'
     timeout-minutes: 10
     steps:
       - uses: 'actions/checkout@v2'
+      - uses: 'rhysd/action-setup-vim@v1'
+      - name: 'test'
+        run: ./tests/run.sh
 
-      - name: 'setup'
-        run: >
-          sudo apt-get update -y \
-            && sudo apt-get upgrade -y \
-            && sudo apt-get install -y vim \
-
+  nvim:
+    env:
+      - EXRC_VIM: 'nvim'
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 10
+    steps:
+      - uses: 'actions/checkout@v2'
+      - uses: 'rhysd/action-setup-vim@v1'
+        with:
+          neovim: true
       - name: 'test'
         run: ./tests/run.sh
