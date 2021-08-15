@@ -40,7 +40,7 @@ call delete(g:RC_FILE)
 
 if has('nvim-0.5.0')
   echomsg '; Should source lua files'
-  call writefile(['vim.g.SOURCED = 3'], g:RC_LUA_FILE)
+  call writefile(['vim.g.SOURCED = 4'], g:RC_LUA_FILE)
   call exrc#trust(g:RC_LUA_FILE)
   Assert g:SOURCED == 3
   unlet! g:SOURCED
