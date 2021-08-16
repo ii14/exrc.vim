@@ -11,43 +11,39 @@ let s:hash_func   = get(g:, 'exrc#hash_func', 's:HashFunc')
 let s:cache_file  = get(g:, 'exrc#cache_file',
                   \ (exists('*stdpath') ? stdpath('cache') : $HOME) . '/.exrc_cache')
 
+
 if type(s:names) == v:t_string
   let s:names = [s:names]
 elseif type(s:names) != v:t_list
-  throw 'g:exrc#names is not a list'
+  throw 'exrc.vim: g:exrc#names is not a list'
 elseif len(s:names) < 1
-  throw 'g:exrc#names should contain at least one element'
+  throw 'exrc.vim: g:exrc#names should contain at least one element'
 endif
 
 for name in s:names
   if type(name) != v:t_string || name ==# ''
-    throw 'g:exrc#names should only contain non-empty strings'
+    throw 'exrc.vim: g:exrc#names should only contain non-empty strings'
   endif
 endfor
 
 if &exrc
   for pat in ['.vimrc', '.exrc', '.gvimrc']
     if index(s:names, pat) != -1
-      throw "Collision with native 'exrc' option. " .
-        \ "Set 'noexrc' or set a custom filename in g:exrc#names"
+      throw "exrc.vim: Collision with native exrc option. " .
+        \ "See ':verbose set exrc?', add ':set noexrc' or set a custom filename in g:exrc#names"
     endif
   endfor
 endif
 
 try
   call function(s:hash_func)
-catch /E700/
-  throw 'g:exrc#hash_func is not a function'
+catch
+  throw 'exrc.vim: g:exrc#hash_func is not a function'
 endtry
+
 
 fun! s:Error(...)
   echohl ErrorMsg
-  echomsg 'exrc.vim: '.(a:0 == 1 ? a:1 : call('printf', a:000))
-  echohl None
-endfun
-
-fun! s:Warn(...)
-  echohl WarningMsg
   echomsg 'exrc.vim: '.(a:0 == 1 ? a:1 : call('printf', a:000))
   echohl None
 endfun
@@ -105,6 +101,7 @@ fun! s:Remove(list, fname) abort
   return filter(a:list, '(v:val[0] ==# "!" || filereadable(v:val[1])) && v:val[1] !=# a:fname')
 endfun
 
+
 " Edit local config file
 fun! exrc#edit() abort
   for name in s:names
@@ -119,8 +116,7 @@ endfun
 " Add file to trusted files
 fun! exrc#trust(fname, force) abort
   if !filereadable(a:fname)
-    call s:Error(
-      \ 'File does not exist')
+    call s:Error('File does not exist')
     return
   endif
 

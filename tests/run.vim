@@ -44,9 +44,9 @@ com! -bar -nargs=+ Assert
 fun! Assert(expr, file, lnum) abort
   try
     if eval(a:expr)
-      echomsg printf(
-        \ '%s:%s: OK: %s',
-        \ a:file, a:lnum, a:expr)
+      if exists('$EXRC_VERBOSE')
+        echomsg printf('%s:%s: OK: %s', a:file, a:lnum, a:expr)
+      endif
       return
     endif
   catch
@@ -71,10 +71,12 @@ redir! > $EXRC_LOG_FILE
     echomsg repeat('-', 80)
   endif
 
-  call Cleanup()
-
   try
-    source $EXRC_RUNTIME/tests/test.vim
+    call Cleanup()
+    source $EXRC_RUNTIME/tests/test_config.vim
+    call Cleanup()
+    source $EXRC_RUNTIME/tests/test_api.vim
+    call Cleanup()
   catch
     let s:ok = v:false
     echohl ErrorMsg
@@ -92,8 +94,6 @@ redir! > $EXRC_LOG_FILE
     echomsg 'TEST FAILED'
     echohl None
   endif
-
-  call Cleanup()
 redir END
 
 if exists('$EXRC_CI')
