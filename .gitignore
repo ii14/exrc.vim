@@ -1,5 +1,8 @@
 tags
 test.log
-exrc_cache
-.exrc
-.exrc.lua
+
+_exrc_cache
+_exrc.vim
+_exrc2.vim
+_exrc 3.vim
+_exrc.lua
