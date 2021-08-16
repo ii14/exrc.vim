@@ -41,7 +41,7 @@ echomsg 'Should not source after file was changed to previous version'
   Assert !exists('g:SOURCED')
   call delete(g:TMP.rc_file)
 
-if has('nvim-0.5.0')
+if has('nvim-0.5')
   echomsg 'Should source lua files'
     call writefile(['vim.g.SOURCED = 3'], g:TMP.rc_lua_file)
     call exrc#trust(g:TMP.rc_lua_file, 0)
@@ -49,7 +49,7 @@ if has('nvim-0.5.0')
     unlet! g:SOURCED
     call delete(g:TMP.rc_lua_file)
 else
-  echomsg 'No nvim-0.5.0, skipping lua tests'
+  echomsg 'No nvim-0.5, skipping lua tests'
 endif
 
 echomsg 'Should not source blacklisted files'

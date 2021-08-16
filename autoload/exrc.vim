@@ -170,11 +170,16 @@ fun! exrc#source() abort
   let candidate = ''
   for name in s:names
     if filereadable(name)
-      let c = s:Check(name)
-      if c == 1
-        execute (match(name, '\c\V.lua\$') == -1 ? 'source ' : 'luafile ').fnameescape(name)
-        return ''
-      elseif c == 0 && candidate ==# ''
+      let res = s:Check(name)
+      if res == 1
+        if match(name, '\c\V.lua\$') == -1
+          execute 'source '.fnameescape(name)
+          return ''
+        elseif has('nvim-0.5') || has('lua')
+          execute 'luafile '.fnameescape(name)
+          return ''
+        endif
+      elseif res == 0 && candidate ==# ''
         let candidate = name
       endif
     endif
