@@ -12,15 +12,14 @@ function! s:Source(mods) abort
   let silent = index(mods, 'silent') != -1 || index(mods, 'silent!') != -1
   let candidate = exrc#source()
   if !silent && candidate !=# ''
+    let candidate = fnamemodify(candidate, ':p')
+    let msg = 'exrc.vim: Unknown config found: "'.candidate.'"'
     if index(mods, 'confirm') == -1
       echohl WarningMsg
-      echomsg 'Unknown config found. Run :ExrcEdit and :ExrcTrust to add config to the trusted files'
+      echomsg msg . '. Run :ExrcEdit and :ExrcTrust to trust this file'
       echohl None
     else
-      let candidate = fnamemodify(candidate, ':p')
-      let choice = confirm(
-        \ 'exrc.vim: Unknown config found: '.candidate,
-        \ "&ignore\n&edit\n&blacklist\n&trust", 1)
+      let choice = confirm(msg, "&ignore\n&edit\n&blacklist\n&trust", 1)
       if choice == 2
         execute 'edit '.candidate
       elseif choice == 3
@@ -28,6 +27,7 @@ function! s:Source(mods) abort
       elseif choice == 4
         call exrc#trust(candidate, 1)
       endif
+      redraw
     endif
   endif
 endfunction
