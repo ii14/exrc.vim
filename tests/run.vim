@@ -11,9 +11,10 @@ endif
 
 let s:ok = v:true
 let g:TMP = {
-  \ 'rc_file'     : getcwd().'/.exrc',
-  \ 'rc_lua_file' : getcwd().'/.exrc.lua',
-  \ 'cache_file'  : getcwd().'/exrc_cache',
+  \ 'rc_file'     : getcwd().'/_exrc.vim',
+  \ 'rc_file2'    : getcwd().'/_exrc2.vim',
+  \ 'rc_lua_file' : getcwd().'/_exrc.lua',
+  \ 'cache_file'  : getcwd().'/_exrc_cache',
   \ }
 
 
@@ -61,7 +62,6 @@ endfun
 
 redir! > $EXRC_LOG_FILE
   if exists('$EXRC_CI')
-    echomsg strftime('%Y-%m-%d %H:%M:%S')
     echomsg '* $EXRC_RUNTIME = '.string($EXRC_RUNTIME)
     echomsg '* $EXRC_LOG_FILE = '.string($EXRC_LOG_FILE)
     for key in sort(keys(g:TMP))

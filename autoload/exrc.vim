@@ -20,8 +20,8 @@ elseif len(s:names) < 1
 endif
 
 for name in s:names
-  if type(name) != v:t_string
-    throw 'g:exrc#names should only contain strings'
+  if type(name) != v:t_string || name ==# ''
+    throw 'g:exrc#names should only contain non-empty strings'
   endif
 endfor
 
@@ -56,7 +56,8 @@ endfun
 fun! s:Checksum(fname) abort
   let path = fnamemodify(a:fname, ':p')
   let hash = split(call(function(s:hash_func), [path]), '\s')
-  if len(hash) < 1 || len(hash[0]) < 16
+  " check for '!' is redundant, but it's better to be explicit that '!' is reserved
+  if len(hash) < 1 || len(hash[0]) < 16 || hash[0] ==# '!'
     throw 'Invalid hash'
   endif
   return [hash[0], path]
@@ -86,13 +87,22 @@ endfun
 
 " Check if file is on the trusted files list
 fun! s:Check(fname) abort
-  let hash = s:Checksum(a:fname)
-  return index(s:Read(), hash[0] . ' ' . hash[1]) != -1
+  let [hash, file] = s:Checksum(a:fname)
+  for [h, f] in s:Parse(s:Read())
+    if f ==# file
+      if h ==# '!'
+        return -1
+      elseif h ==# hash
+        return 1
+      endif
+    endif
+  endfor
+  return 0
 endfun
 
-" Clean list from files that no longer exist or match the function arguments
-fun! s:Clean(list, ...) abort
-  return filter(a:list, 'filereadable(v:val[1]) && index(a:000, v:val[1]) == -1')
+" Remove file from hash list. Also cleans up files that no longer exist
+fun! s:Remove(list, fname) abort
+  return filter(a:list, '(v:val[0] ==# "!" || filereadable(v:val[1])) && v:val[1] !=# a:fname')
 endfun
 
 " Edit local config file
@@ -107,7 +117,7 @@ fun! exrc#edit() abort
 endfun
 
 " Add file to trusted files
-fun! exrc#trust(fname) abort
+fun! exrc#trust(fname, force) abort
   if !filereadable(a:fname)
     call s:Error(
       \ 'File does not exist')
@@ -125,9 +135,20 @@ fun! exrc#trust(fname) abort
 
   " add the config file to trusted files
   let full = fnamemodify(a:fname, ':p')
-  let hash = s:Checksum(full)
   let hashes = s:Parse(s:Read())
-  call s:Clean(hashes, hash[1])
+  if !a:force
+    for item in hashes
+      if item[1] ==# full && item[0] ==# '!'
+        call s:Error(
+          \ 'File "%s" is blacklisted. Use :ExrcTrust! to force.',
+          \ item[1])
+        return
+      endif
+    endfor
+  endif
+
+  let hash = s:Checksum(full)
+  call s:Remove(hashes, hash[1])
   call add(hashes, hash)
   call writefile(s:Serialize(hashes), s:cache_file)
 
@@ -137,21 +158,31 @@ fun! exrc#trust(fname) abort
   endif
 endfun
 
-" Find and source local config file
+" Blacklist file
+fun! exrc#blacklist(fname) abort
+  let full = fnamemodify(a:fname, ':p')
+  let hash = s:Checksum(full)
+  let hashes = s:Parse(s:Read())
+  call s:Remove(hashes, hash[1])
+  call add(hashes, ['!', full])
+  call writefile(s:Serialize(hashes), s:cache_file)
+endfun
+
+" Find and source local config file. Returns a candidate or ''
 fun! exrc#source() abort
-  let found = v:false
+  let candidate = ''
   for name in s:names
     if filereadable(name)
-      if s:Check(name)
+      let c = s:Check(name)
+      if c == 1
         execute (match(name, '\c\V.lua\$') == -1 ? 'source ' : 'luafile ').fnameescape(name)
-        return
+        return ''
+      elseif c == 0 && candidate ==# ''
+        let candidate = name
       endif
-      let found = v:true
     endif
   endfor
-  if found
-    call s:Warn('Unknown config found. Run :ExrcEdit and :ExrcTrust to add config to the trusted files')
-  endif
+  return candidate
 endfun
 
 " vim: et sw=2 sts=2

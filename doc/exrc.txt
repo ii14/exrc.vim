@@ -12,22 +12,35 @@ manually marked as trusted, before it can be sourced. exrc.vim keeps track
 of file hashes and every time the content or location of a config file
 changes, it has to be marked as trusted again.
 
+When exrc.vim finds a new config file, it will ask what do you want to do
+with it:
+>
+	exrc.vim: Unknown config found: /path/to/.exrc
+	[i]gnore, (e)dit, (b)lacklist, (t)rust:
+<
+<Esc>, <CR>, i -> ignore question and continue
+             e -> edit (show) this file
+             b -> blacklist, don't ask me about this file again
+             t -> trust and source this file
+
 ------------------------------------------------------------------------------
 COMMAND						*exrc-command*
 
-:ExrcTrust {file}				*:ExrcTrust*
+:ExrcTrust[!] {file}				*:ExrcTrust*
 	Add {file} to trusted files.
 	If {file} is not specified, the current buffer is selected.
+	With ! blacklisted files can be trusted again.
 
 	To automatically mark saved files as trusted, use this autocmd:
 >
-		autocmd BufWritePost .exrc nested ExrcTrust
+		autocmd BufWritePost .exrc nested silent ExrcTrust
 <
 :ExrcEdit					*:ExrcEdit*
 	Edit local config file.
 
 :ExrcSource					*:ExrcSource*
 	Source local config file.
+	Accepted command modifiers: |:silent|, |:confirm|
 
 ------------------------------------------------------------------------------
 OPTIONS						*exrc-options*
