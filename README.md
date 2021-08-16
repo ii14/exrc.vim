@@ -11,14 +11,21 @@ this issue by keeping track of file hashes and allowing only trusted files to be
 
 ## Usage
 
-To mark file as trusted, open the config file with `:edit .exrc` or `:ExrcEdit` and
-run command:
+When exrc.vim detects a new config file, it will ask what do you want to do with it:
 
-```vim
-:ExrcTrust
+```
+exrc.vim: Unknown config found: /path/to/.exrc
+[i]gnore, (e)dit, (b)lacklist, (t)rust:
 ```
 
-The file has to be marked as trusted each time its contents or path changes.
+You can either `i`gnore this file for now, `e`dit it to see if it doesn't contain anything
+malicious, `b`lacklist the file so `exrc.vim` won't ask you about it again, or `t`rust and
+source it right away.
+
+To manually mark file as trusted, open the config file with `:edit .exrc` or `:ExrcEdit`
+and run command `:ExrcTrust`. Files that were once blacklisted can be trusted with
+`:ExrcTrust!`. File has to be marked as trusted each time its contents or path
+changes.
 
 ## Configuration
 
@@ -37,7 +44,7 @@ autocmd BufRead,BufNewFile .exrc.local setfiletype vim
 
 Lua support:
 ```vim
-let g:exrc#names = ['.exrc.lua']
+let g:exrc#names = ['.exrc', '.exrc.lua']
 ```
 
 Cache file location:
