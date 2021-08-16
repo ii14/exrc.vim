@@ -4,7 +4,7 @@
 
 echomsg ':: Test API'
 
-let g:exrc#names = ['_exrc.vim', '_exrc2.vim', '_exrc.lua']
+let g:exrc#names = ['_exrc.vim', '_exrc2.vim', '_exrc 3.vim', '_exrc.lua']
 let g:exrc#cache_file = g:TMP.cache_file
 source $EXRC_RUNTIME/autoload/exrc.vim
 
@@ -78,3 +78,12 @@ echomsg 'Should source second candidate if first candidate is blacklisted'
   call exrc#trust(g:TMP.rc_file2, 0)
   Assert g:SOURCED == 5
   unlet! g:SOURCED
+  call delete(g:TMP.rc_file)
+  call delete(g:TMP.rc_file2)
+
+echomsg 'Should trust and source files with spaces in their path'
+  call writefile(['let g:SOURCED = 6'], g:TMP.rc_file3)
+  call exrc#trust(g:TMP.rc_file3, 0)
+  Assert g:SOURCED == 6
+  unlet! g:SOURCED
+  call delete(g:TMP.rc_file3)

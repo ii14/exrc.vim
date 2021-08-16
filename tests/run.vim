@@ -13,6 +13,7 @@ let s:ok = v:true
 let g:TMP = {
   \ 'rc_file'     : getcwd().'/_exrc.vim',
   \ 'rc_file2'    : getcwd().'/_exrc2.vim',
+  \ 'rc_file3'    : getcwd().'/_exrc 3.vim',
   \ 'rc_lua_file' : getcwd().'/_exrc.lua',
   \ 'cache_file'  : getcwd().'/_exrc_cache',
   \ }
@@ -71,18 +72,18 @@ redir! > $EXRC_LOG_FILE
     echomsg repeat('-', 80)
   endif
 
+  call Cleanup()
   try
-    call Cleanup()
     source $EXRC_RUNTIME/tests/test_config.vim
     call Cleanup()
     source $EXRC_RUNTIME/tests/test_api.vim
-    call Cleanup()
   catch
     let s:ok = v:false
     echohl ErrorMsg
     echomsg v:exception
     echohl None
   endtry
+  call Cleanup()
 
   echomsg repeat('-', 80)
   if s:ok
