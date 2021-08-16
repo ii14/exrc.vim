@@ -35,9 +35,9 @@ endfunction
 command! -bar -bang -nargs=? -complete=file ExrcTrust
   \ call exrc#trust(expand(<q-args> ==# '' ? '%' : <q-args>), <bang>0)
 
-command! -bar ExrcEdit call exrc#edit()
-
 command! -bar ExrcSource call s:Source(<q-mods>)
+
+command! -bar ExrcEdit call exrc#edit()
 
 augroup ExrcPlugin
   autocmd!

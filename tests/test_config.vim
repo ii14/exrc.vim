@@ -59,4 +59,3 @@ echomsg 'Should throw when g:exrc#hash_func is not a function'
   let g:exrc#hash_func = 1
   Assert TrySource() =~# '^exrc.vim:'
   unlet! g:exrc#hash_func
-

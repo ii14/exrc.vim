@@ -64,7 +64,7 @@ g:exrc#hash_func				*g:exrc#hash_func*
 	The default function uses builtin |sha256()| function. If vim is
 	compiled without |+cryptv| option, a custom function can be provided.
 	Function should take a filename as an argument and return a |String|.
-	Returned value is stripped from whitespace and only first word is
+	Returned value is stripped from whitespace and only first |WORD| is
 	used as a hash.
 >
 		fun! HashFile(fname)

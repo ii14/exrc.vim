@@ -42,27 +42,46 @@ catch
 endtry
 
 
+" Display error message, printf formatting.
 fun! s:Error(...)
   echohl ErrorMsg
   echomsg 'exrc.vim: '.(a:0 == 1 ? a:1 : call('printf', a:000))
   echohl None
 endfun
 
-" Generate checksum for file
+
+" Generate checksum for file.
+" Only first WORD from the result of hash_func is used,
+" because serialized hashes are delimited with space.
 fun! s:Checksum(fname) abort
   let path = fnamemodify(a:fname, ':p')
-  let hash = split(call(function(s:hash_func), [path]), '\s')
+  let res = call(function(s:hash_func), [path])
+  if type(res) != v:t_string
+    throw 'exrc.vim: g:exrc#hash_func should return a string'
+  endif
+  let hash = split(res, '\s')
   " check for '!' is redundant, but it's better to be explicit that '!' is reserved
   if len(hash) < 1 || len(hash[0]) < 16 || hash[0] ==# '!'
-    throw 'Invalid hash'
+    throw 'exrc.vim: Invalid hash returned from g:exrc#hash_func'
   endif
   return [hash[0], path]
 endfun
 
-" Convert list of lines to a list of [hash, path]
-fun! s:Parse(lines) abort
+" Write list of [hash, path] to the cache file.
+fun! s:Write(hashes) abort
+  call writefile(map(a:hashes, 'v:val[0] . " " . v:val[1]'), s:cache_file)
+endfun
+
+" Read hashes from the cache file.
+" Returns a list of [hash, path].
+fun! s:Read() abort
+  try
+    let lines = readfile(s:cache_file)
+  catch
+    let lines = []
+  endtry
   let res = []
-  for line in a:lines
+  for line in lines
     let idx = match(line, ' ')
     if idx > 0 && idx + 1 < len(line)
       call add(res, [line[:idx-1], line[idx+1:]])
@@ -71,20 +90,11 @@ fun! s:Parse(lines) abort
   return res
 endfun
 
-" Convert list of [hash, path] to a list of lines
-fun! s:Serialize(list) abort
-  return map(a:list, 'v:val[0] . " " . v:val[1]')
-endfun
-
-" Read lines from the cache file
-fun! s:Read() abort
-  return filereadable(s:cache_file) ? readfile(s:cache_file) : []
-endfun
-
-" Check if file is on the trusted files list
+" Check if file is on the trusted files list.
+" Returns 0 if unknown, 1 if trusted, -1 if blacklisted.
 fun! s:Check(fname) abort
   let [hash, file] = s:Checksum(a:fname)
-  for [h, f] in s:Parse(s:Read())
+  for [h, f] in s:Read()
     if f ==# file
       if h ==# '!'
         return -1
@@ -96,24 +106,14 @@ fun! s:Check(fname) abort
   return 0
 endfun
 
-" Remove file from hash list. Also cleans up files that no longer exist
+" Remove file from a list of [hash, path].
+" Also cleans up files that no longer exist.
 fun! s:Remove(list, fname) abort
   return filter(a:list, '(v:val[0] ==# "!" || filereadable(v:val[1])) && v:val[1] !=# a:fname')
 endfun
 
 
-" Edit local config file
-fun! exrc#edit() abort
-  for name in s:names
-    if filereadable(name)
-      execute 'edit ' . fnameescape(name)
-      return
-    endif
-  endfor
-  execute 'edit ' . fnameescape(s:names[0])
-endfun
-
-" Add file to trusted files
+" Add file to trusted files.
 fun! exrc#trust(fname, force) abort
   if !filereadable(a:fname)
     call s:Error('File does not exist')
@@ -131,7 +131,7 @@ fun! exrc#trust(fname, force) abort
 
   " add the config file to trusted files
   let full = fnamemodify(a:fname, ':p')
-  let hashes = s:Parse(s:Read())
+  let hashes = s:Read()
   if !a:force
     for item in hashes
       if item[1] ==# full && item[0] ==# '!'
@@ -146,7 +146,7 @@ fun! exrc#trust(fname, force) abort
   let hash = s:Checksum(full)
   call s:Remove(hashes, hash[1])
   call add(hashes, hash)
-  call writefile(s:Serialize(hashes), s:cache_file)
+  call s:Write(hashes)
 
   " source the config if in current working directory
   if fnamemodify(full, ':h') ==# getcwd()
@@ -154,17 +154,18 @@ fun! exrc#trust(fname, force) abort
   endif
 endfun
 
-" Blacklist file
+" Blacklist file.
 fun! exrc#blacklist(fname) abort
   let full = fnamemodify(a:fname, ':p')
   let hash = s:Checksum(full)
-  let hashes = s:Parse(s:Read())
+  let hashes = s:Read()
   call s:Remove(hashes, hash[1])
   call add(hashes, ['!', full])
-  call writefile(s:Serialize(hashes), s:cache_file)
+  call s:Write(hashes)
 endfun
 
-" Find and source local config file. Returns a candidate or ''
+" Find and source local config file.
+" Returns a candidate or an empty string.
 fun! exrc#source() abort
   let candidate = ''
   for name in s:names
@@ -179,6 +180,17 @@ fun! exrc#source() abort
     endif
   endfor
   return candidate
+endfun
+
+" Edit local config file.
+fun! exrc#edit() abort
+  for name in s:names
+    if filereadable(name)
+      execute 'edit ' . fnameescape(name)
+      return
+    endif
+  endfor
+  execute 'edit ' . fnameescape(s:names[0])
 endfun
 
 " vim: et sw=2 sts=2
