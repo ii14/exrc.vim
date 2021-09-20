@@ -42,7 +42,11 @@ command! -bar ExrcEdit call exrc#edit()
 augroup ExrcPlugin
   autocmd!
   if exists('##DirChanged')
-    autocmd DirChanged * nested if v:event.scope ==# 'global' | confirm ExrcSource | endif
+    if has('nvim')
+      autocmd DirChanged * nested if v:event.scope ==# 'global' | confirm ExrcSource | endif
+    else
+      autocmd DirChanged global nested confirm ExrcSource
+    endif
   endif
   if v:vim_did_enter
     confirm ExrcSource
