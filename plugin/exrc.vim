@@ -39,20 +39,17 @@ command! -bar ExrcSource call s:Source(<q-mods>)
 
 command! -bar ExrcEdit call exrc#edit()
 
-augroup ExrcPlugin
-  autocmd!
-  if exists('##DirChanged')
+if exists('##DirChanged')
+  augroup ExrcPlugin
+    autocmd!
     if has('nvim')
       autocmd DirChanged * nested if v:event.scope ==# 'global' | confirm ExrcSource | endif
     else
       autocmd DirChanged global nested confirm ExrcSource
     endif
-  endif
-  if v:vim_did_enter
-    confirm ExrcSource
-  else
-    autocmd VimEnter * nested confirm ExrcSource
-  endif
-augroup END
+  augroup END
+endif
+
+confirm ExrcSource
 
 " vim: et sw=2 sts=2
